@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Express HTML Example</title>
+</head>
+<body>
+    <h1 id="header"></h1>
+    <p id="body">Please navigate back to the StockWatch app to continue
+        the registration process.
+    </p>
+
+    <script>
+        // wait for the page to fully load and send user email to the db
+        document.addEventListener('DOMContentLoaded', () => {
+            var email = '<%= email %>';
+
+            fetch('http://192.168.0.72:3000/signup/email/verify/user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: email }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    // Display the users email in h1 upon success
+                    document.getElementById('header').innerHTML =`Congrats, ${email}!`;
+                })
+                .catch((error) => {
+                    console.log('Error', error);
+                });
+        });
+    </script>
+</body>
+</html>
