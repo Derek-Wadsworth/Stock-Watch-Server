@@ -239,6 +239,35 @@ router.patch('/fullName', async (req, res) => {
     }
 });
 
+// handle updating a new user's phone number during signup
+router.patch('/phoneNumber', async (req, res) => {
+    try {
+        // update user's phone number using User model
+        const result = await User.updateOne(
+            { email: req.body.email },
+            { $set: { phoneNumber: req.body.phoneNumber }}
+        );
+        
+        if (result.nModified === 0) {
+            // no user found for given email
+            res.status(404).json({
+                message: 'User not found'
+            });
+        } else {
+            // user was found and updated
+            console.log('patch route entered');
+            res.status(200).json({
+                message: 'User phone number successfully updated'
+            });
+        }
+    } catch (error) {
+        console.error('Error', error);
+        res.status(500).json({
+            error: 'Server error'
+        });
+    }
+});
+
 // handle login for a given user by matching email and pword
 router.post('/login', (req, res, next) => {
     User.find({ email: req.body.email })
