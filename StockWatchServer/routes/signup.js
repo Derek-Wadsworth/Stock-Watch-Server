@@ -242,6 +242,16 @@ router.patch('/fullName', async (req, res) => {
 // handle updating a new user's phone number during signup
 router.patch('/phoneNumber', async (req, res) => {
     try {
+        // Check if the email address is valid
+        const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/;
+        const isValidPhoneNumber = phoneRegex.test(req.body.phoneNumber);
+  
+        if (!isValidPhoneNumber) {
+            return res.status(400).json({
+                message: 'Phone number is not valid' 
+            });
+        }
+        
         // update user's phone number using User model
         const result = await User.updateOne(
             { email: req.body.email },
