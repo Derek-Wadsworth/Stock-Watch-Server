@@ -242,7 +242,7 @@ router.patch('/fullName', async (req, res) => {
 // handle updating a new user's phone number during signup
 router.patch('/phoneNumber', async (req, res) => {
     try {
-        // Check if the email address is valid
+        // Check if the phone number is valid
         const phoneRegex = /^(\+\d{1,2}\s?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/;
         const isValidPhoneNumber = phoneRegex.test(req.body.phoneNumber);
   
@@ -273,6 +273,56 @@ router.patch('/phoneNumber', async (req, res) => {
     } catch (error) {
         console.error('Error', error);
         res.status(500).json({
+            error: 'Server error'
+        });
+    }
+});
+
+// handle updating a new user's date of birth during signup
+router.patch('/dateofBirth', async (req, res) => {
+    try {
+        // check if the date is valid
+        const dateParts = req.body.dateofBirth.split('/');
+
+        // check date has 3 parts: month, day, year
+        if (dateParts.length === 3) {
+            const [month, day, year] = dateParts;
+
+            // check if parts are within reasonable ranges
+            if (parseInt(month) >= 1 && parseInt(month) <= 12 &&
+                parseInt(day) >= 1 && parseInt(day) <= 31 &&
+                parseInt(year) >= 1923 && parseInt(year) <= 2005) {
+
+                // create new Date
+                const date = new Date(year, parseInt(month) - 1, day);
+
+                // update user's phone number using User model
+                const result = await User.updateOne(
+                    { email: req.body.email },
+                    { $set: { dateOfBirth: date }}
+                );
+                
+                if (result.nModified === 0) {
+                    // no user found for given email
+                    return res.status(404).json({
+                        message: 'User not found'
+                    });
+                } else {
+                    // user was found and updated
+                    console.log('patch route entered');
+                    return res.status(200).json({
+                        message: 'User phone number successfully updated'
+                    });
+                }
+            }
+        } 
+        // date format is invalid
+        return res.status(400).json({
+            message: 'Date of birth is not valid'
+        });
+    } catch (error) {
+        console.error('Error', error);
+        return res.status(500).json({
             error: 'Server error'
         });
     }
